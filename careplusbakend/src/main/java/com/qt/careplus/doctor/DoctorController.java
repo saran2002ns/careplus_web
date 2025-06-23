@@ -25,7 +25,7 @@ public class DoctorController {
     private final DoctorRepository doctorRepository;
     private final SpecialistRepository specialistRepository;
 
-    // Create Doctor
+    
     @PostMapping
     public ResponseEntity<String> createDoctor(@RequestBody DoctorDTO request) {
         try {

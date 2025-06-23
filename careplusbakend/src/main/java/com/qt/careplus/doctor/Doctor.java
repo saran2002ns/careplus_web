@@ -39,8 +39,5 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DoctorDate> availableDates;
 
-    public Doctor orElse(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElse'");
-    }
+  
 }
