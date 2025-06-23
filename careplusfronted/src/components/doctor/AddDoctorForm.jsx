@@ -29,7 +29,7 @@ function AddDoctorForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Simulated success (replace with real backend logic)
+    
     const isSuccess = true;
     setStatus(isSuccess ? 'Doctor added successfully!' : 'Unable to add doctor.');
     setShowModal(true);

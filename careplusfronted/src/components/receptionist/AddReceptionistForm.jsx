@@ -25,11 +25,11 @@ function AddReceptionistForm() {
       return;
     }
 
-    // Simulate API call success
+    
     setStatus(`Receptionist ${formData.name} added successfully!`);
     setShowOverlay(true);
 
-    // Optionally reset form
+   
     setFormData({
       name: '',
       number: '',
@@ -80,7 +80,7 @@ function AddReceptionistForm() {
           required
         />
 
-        {/* ❌ Password mismatch warning */}
+       
         {error && (
           <div className="col-span-2 text-red-600 text-sm">{error}</div>
         )}
@@ -95,7 +95,7 @@ function AddReceptionistForm() {
         </div>
       </form>
 
-      {/* ✅ Confirmation Overlay */}
+     
       {showOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/40">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

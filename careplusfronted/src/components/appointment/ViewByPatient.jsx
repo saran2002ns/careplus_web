@@ -5,7 +5,7 @@ function ViewByPatient() {
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState([]);
 
-  // Mock appointment data (replace with backend fetch later)
+ 
   const mockAppointments = [
     {
       id: 201,

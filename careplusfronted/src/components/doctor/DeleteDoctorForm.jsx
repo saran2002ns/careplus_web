@@ -8,7 +8,7 @@ function DeleteDoctorForm() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [status, setStatus] = useState('');
 
-  // Mock data
+ 
   const mockDoctors = [
     { doctorId: 1, name: 'Dr. Ravi', specialist: 'Cardiologist' },
     { doctorId: 2, name: 'Dr. Meena', specialist: 'Dermatologist' },
@@ -111,7 +111,7 @@ function DeleteDoctorForm() {
         </div>
       )}
 
-      {/* ✅ Overlay */}
+      
       {showOverlay && (
         <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

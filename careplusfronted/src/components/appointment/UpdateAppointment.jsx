@@ -65,7 +65,7 @@ function UpdateAppointment() {
     <div className="space-y-6">
       <h2 className="text-xl font-semibold mb-4">Update Appointment</h2>
 
-      {/* Search by ID */}
+     
       <div className="flex gap-2 mb-4">
         <input
           type="text"
@@ -79,7 +79,7 @@ function UpdateAppointment() {
         </button>
       </div>
 
-      {/* Show Appointment Details */}
+      
       {appointmentData && (
         <div className="space-y-4 border p-4 rounded">
           <h3 className="text-lg font-bold text-center">Appointment Info</h3>
@@ -142,7 +142,7 @@ function UpdateAppointment() {
         </div>
       )}
 
-      {/* Confirm Overlay */}
+      
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
@@ -167,7 +167,7 @@ function UpdateAppointment() {
         </div>
       )}
 
-      {/* Success Overlay */}
+      
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

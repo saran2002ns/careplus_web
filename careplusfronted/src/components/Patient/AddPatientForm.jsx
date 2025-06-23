@@ -32,7 +32,7 @@ function AddPatientForm() {
         <input type="text" placeholder="Address" className="input border p-2" required />
         <input type="date" className="input border p-2" required />
 
-        {/* ⏰ Time Selection */}
+        
         <select
           className="input border p-2"
           value={selectedTime}
@@ -52,7 +52,7 @@ function AddPatientForm() {
         </div>
       </form>
 
-      {/* ✅ Overlay Status */}
+      
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/40 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

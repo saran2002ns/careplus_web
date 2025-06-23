@@ -80,7 +80,7 @@ function AddAppointment() {
     <div className="space-y-6">
       <h2 className="text-xl font-semibold mb-4">Add Appointment</h2>
 
-      {/* Patient Search */}
+      
       <div className="space-y-2">
         <div className="flex gap-2">
           <select
@@ -124,7 +124,7 @@ function AddAppointment() {
         )}
       </div>
 
-      {/* Doctor Search */}
+      
       <div className="space-y-2">
         <div className="flex gap-2">
           <select
@@ -168,7 +168,7 @@ function AddAppointment() {
         )}
       </div>
 
-      {/* Show Confirmation Button */}
+      
       {selectedDoctor && selectedPatient && (
         <button
           onClick={() => setShowConfirmOverlay(true)}
@@ -178,7 +178,7 @@ function AddAppointment() {
         </button>
       )}
 
-      {/* Confirmation Overlay */}
+     
       {showConfirmOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md mx-auto">
@@ -209,7 +209,7 @@ function AddAppointment() {
         </div>
       )}
 
-      {/* Final Confirmation Overlay */}
+      
       {showFinalOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

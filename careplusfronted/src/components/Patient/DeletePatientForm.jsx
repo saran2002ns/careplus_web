@@ -8,7 +8,7 @@ function DeletePatientForm() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [status, setStatus] = useState('');
 
-  // Mock patient data
+ 
   const mockPatients = [
     { patientId: 1, name: 'Ravi Kumar', age: 45, gender: 'Male', number: '9876543210' },
     { patientId: 2, name: 'Meena Devi', age: 38, gender: 'Female', number: '9123456780' },

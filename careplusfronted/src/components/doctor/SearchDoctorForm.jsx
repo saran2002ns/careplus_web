@@ -53,7 +53,7 @@ export default function SearchDoctorForm() {
     <div className="space-y-6 relative">
       <h2 className="text-xl font-semibold">Search Doctor</h2>
 
-      {/* Search Inputs */}
+      
       <div className="flex items-center gap-2">
         <select
           value={searchType}
@@ -80,7 +80,7 @@ export default function SearchDoctorForm() {
         </button>
       </div>
 
-      {/* Result List */}
+     
       {results.length > 0 && (
         <div className="space-y-3">
           <h3 className="font-medium">Matching Doctors:</h3>
@@ -101,7 +101,7 @@ export default function SearchDoctorForm() {
         </div>
       )}
 
-      {/* Overlay Modal */}
+      
       {selectedDoctor && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Make sure you're using react-router-dom
+import { useNavigate } from 'react-router-dom'; 
 import AddPatientForm from '../components/Patient/AddPatientForm';
 import UpdatePatientForm from '../components/Patient/UpdatePatientForm';
 import SearchPatientForm from '../components/Patient/SearchPatientForm';
@@ -12,13 +12,13 @@ export default function ReceptionistDashboard() {
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (confirmed) {
-      navigate("/"); // Redirect to homepage
+      navigate("/"); 
     }
   };
 
   return (
     <div className="p-6 max-w-5xl mx-auto relative">
-      {/* Top Bar with Title and Logout */}
+     
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-center">Receptionist Dashboard</h1>
         <button 
@@ -29,7 +29,7 @@ export default function ReceptionistDashboard() {
         </button>
       </div>
 
-      {/* Tab Buttons */}
+      
       <div className="flex justify-center space-x-4 mb-6">
         <button onClick={() => setActiveTab("add")} className={tabStyle(activeTab === "add")}>
           Add Patient
@@ -45,7 +45,7 @@ export default function ReceptionistDashboard() {
         </button>
       </div>
 
-      {/* Active Tab Content */}
+      
       <div className="bg-white p-6 rounded shadow">
         {activeTab === "add" && <AddPatientForm />}
         {activeTab === "update" && <UpdatePatientForm />}

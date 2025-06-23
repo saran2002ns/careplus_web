@@ -23,7 +23,7 @@ export default function ReceptionistManagement() {
         </button>
       </div>
 
-      {/* Tabs */}
+      
       <div className="flex justify-center space-x-4 mb-6">
         <button onClick={() => setActiveTab("add")} className={tabStyle(activeTab === "add")}>
           Add Receptionist
@@ -33,7 +33,7 @@ export default function ReceptionistManagement() {
         </button>
       </div>
 
-      {/* Tab Content */}
+      
       <div className="bg-white p-6 rounded shadow">
         {activeTab === "add" && <AddReceptionistForm />}
         {activeTab === "remove" && <RemoveReceptionistForm />}

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 function ViewAllAppointments() {
   const [appointments, setAppointments] = useState([]);
 
-  // Mock data (replace with real API call)
+  
   const mockAppointments = [
     {
       id: 101,
@@ -50,9 +50,9 @@ function ViewAllAppointments() {
   ];
 
   useEffect(() => {
-    // Simulate fetch
+    
     setAppointments(mockAppointments);
-    // In real app: fetch('/api/appointments').then(res => res.json()).then(setAppointments)
+   
   }, []);
 
   return (
