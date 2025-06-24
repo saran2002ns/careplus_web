@@ -1,6 +1,11 @@
 package com.qt.careplus.doctor.doctordate;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,34 +26,70 @@ public class DoctorDateController {
     private final DoctorDateRepository doctorDateRepository;
     private final DoctorRepository doctorRepository;
 
-    @PostMapping
+   @PostMapping
     public ResponseEntity<String> addDoctorDate(@RequestBody DoctorDateDTO request) {
         try {
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
-            DoctorDate date = new DoctorDate();
-            date.setDoctor(doctor);
-            date.setAvailable(request.isAvailable());
-            date.setDate(request.getDate());
+            Date date = request.getDate(); 
 
-            List<TimeSlot> slots = request.getTimeSlots().stream().map(slotDTO -> {
-                TimeSlot slot = new TimeSlot();
-                slot.setTime(slotDTO.getTime());
-                slot.setAvailable(slotDTO.isAvailable());
-                slot.setDoctorDate(date);
-                return slot;
-            }).toList();
+            Optional<DoctorDate> existingDateOpt =
+                    doctorDateRepository.findByDoctorIdAndDate(doctor.getId(), date);
 
-            date.setTimeSlots(slots);
-            doctorDateRepository.save(date);
+            DoctorDate doctorDate;
 
-            return ResponseEntity.ok("Doctor date and time slots added successfully.");
+            if (existingDateOpt.isPresent()) {
+                
+                doctorDate = existingDateOpt.get();
+
+              
+                Map<String, TimeSlot> existingSlotMap = doctorDate.getTimeSlots().stream()
+                        .collect(Collectors.toMap(TimeSlot::getTime, Function.identity()));
+
+                for (TimeSlotDTO slotDTO : request.getTimeSlots()) {
+                    String incomingTime = slotDTO.getTime();
+
+                    if (existingSlotMap.containsKey(incomingTime)) {
+                        
+                        TimeSlot slot = existingSlotMap.get(incomingTime);
+                        slot.setAvailable(slotDTO.isAvailable());
+                    } else {
+                      
+                        TimeSlot newSlot = new TimeSlot();
+                        newSlot.setTime(incomingTime);
+                        newSlot.setAvailable(slotDTO.isAvailable());
+                        newSlot.setDoctorDate(doctorDate);
+                        doctorDate.getTimeSlots().add(newSlot);
+                    }
+                }
+
+            } else {
+              
+                doctorDate = new DoctorDate();
+                doctorDate.setDoctor(doctor);
+                doctorDate.setAvailable(request.isAvailable());
+                doctorDate.setDate(date);
+
+                List<TimeSlot> slots = request.getTimeSlots().stream().map(slotDTO -> {
+                    TimeSlot slot = new TimeSlot();
+                    slot.setTime(slotDTO.getTime());
+                    slot.setAvailable(slotDTO.isAvailable());
+                    slot.setDoctorDate(doctorDate);
+                    return slot;
+                }).toList();
+
+                doctorDate.setTimeSlots(slots);
+            }
+
+            doctorDateRepository.save(doctorDate);
+            return ResponseEntity.ok("Doctor date and time slots saved/updated successfully.");
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Failed to add doctor date: " + e.getMessage());
+                                .body("Failed to add/update doctor date: " + e.getMessage());
         }
     }
 

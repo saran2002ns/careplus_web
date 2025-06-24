@@ -5,7 +5,7 @@ import ReceptionistLogin from "./pages/ReceptionistLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ReceptionistDashboard from "./pages/ReceptionistDashboard";
 import ReceptionistManagement from "./pages/ReceptionistManagement";
-import AppoinmentManagement from "./pages/appoinmentManagement";
+import AppoinmentManagement from "./pages/AppoinmentManagement";
 import DoctorManagement from "./pages/DoctorManagement";
 
 

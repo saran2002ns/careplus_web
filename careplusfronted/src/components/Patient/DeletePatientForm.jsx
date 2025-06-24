@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function DeletePatientForm() {
   const [searchType, setSearchType] = useState('id');
@@ -8,33 +9,38 @@ function DeletePatientForm() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [status, setStatus] = useState('');
 
- 
-  const mockPatients = [
-    { patientId: 1, name: 'Ravi Kumar', age: 45, gender: 'Male', number: '9876543210' },
-    { patientId: 2, name: 'Meena Devi', age: 38, gender: 'Female', number: '9123456780' },
-    { patientId: 3, name: 'Karthik Rao', age: 29, gender: 'Male', number: '9000000000' }
-  ];
-
-  const handleSearch = () => {
-    let results = [];
-    if (searchType === 'id') {
-      results = mockPatients.filter(p => p.patientId.toString() === searchInput);
-    } else {
-      results = mockPatients.filter(p =>
-        p.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-    }
-    setPatientResults(results);
-    setSelectedPatient(null);
-    setStatus('');
-  };
-
-  const handleDelete = () => {
-    setStatus(`Patient ${selectedPatient.name} (ID: ${selectedPatient.patientId}) deleted successfully!`);
-    setShowOverlay(true);
+  const handleSearch = async () => {
     setPatientResults([]);
     setSelectedPatient(null);
-    setSearchInput('');
+    setStatus('');
+
+    try {
+      let res;
+      if (searchType === 'id') {
+        res = await axios.get(`http://localhost:8080/api/patients/${searchInput}`);
+        setPatientResults([res.data]);
+      } else {
+        res = await axios.get(`http://localhost:8080/api/patients/search?name=${searchInput}`);
+        setPatientResults(res.data); 
+      }
+    } catch (err) {
+      setStatus('No patient found.');
+      setShowOverlay(true);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const res = await axios.delete(`http://localhost:8080/api/patients/${selectedPatient.id}`);
+      setStatus(res.data);
+    } catch (err) {
+      setStatus(err.response?.data || 'Failed to delete patient.');
+    } finally {
+      setShowOverlay(true);
+      setPatientResults([]);
+      setSelectedPatient(null);
+      setSearchInput('');
+    }
   };
 
   return (
@@ -69,12 +75,12 @@ function DeletePatientForm() {
 
           {patientResults.length > 0 && (
             <ul className="space-y-2 max-h-40 overflow-auto">
-              {patientResults.map(p => (
+              {patientResults.map((p) => (
                 <li
-                  key={p.patientId}
+                  key={p.id}
                   className="flex justify-between items-center border p-2 rounded"
                 >
-                  <span>{p.name} (ID: {p.patientId}, {p.gender})</span>
+                  <span>{p.name} (ID: {p.id}, {p.gender})</span>
                   <button
                     onClick={() => setSelectedPatient(p)}
                     className="bg-red-600 text-white px-3 py-1 rounded"
@@ -90,7 +96,7 @@ function DeletePatientForm() {
         <div className="text-center space-y-4">
           <p>Are you sure you want to delete this patient?</p>
           <div className="text-sm font-medium border p-4 rounded text-left">
-            <p><strong>ID:</strong> {selectedPatient.patientId}</p>
+            <p><strong>ID:</strong> {selectedPatient.id}</p>
             <p><strong>Name:</strong> {selectedPatient.name}</p>
             <p><strong>Age:</strong> {selectedPatient.age}</p>
             <p><strong>Gender:</strong> {selectedPatient.gender}</p>

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const navigate = useNavigate();
-
+  
   return (
     <div className="h-screen flex flex-col justify-center items-center gap-6 bg-gray-100">
       <h1 className="text-3xl font-bold mb-4">Welcome to CarePlus</h1>

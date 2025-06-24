@@ -56,32 +56,50 @@ public class DoctorController {
         }
     }
 
+    
     @GetMapping("/{doctorId}")
     public ResponseEntity<DoctorWithDatesDTO> getDoctor(@PathVariable Long doctorId) {
         try {
             Doctor doctor = doctorRepository.findById(doctorId)
                     .orElseThrow(() -> new RuntimeException("Doctor not found"));
-
             List<DoctorDateDTO> dates = doctorDateService.getDatesForDoctor(doctorId);
-
-            DoctorDTO doctorDTO = new DoctorDTO(
-                doctor.getId(),
-                doctor.getAge(),
-                doctor.getGender(),
-                doctor.getName(),
-                doctor.getNumber(),
-                doctor.getSpecialist().getSpecialistId(),
-                doctor.getSpecialist().getName()
-            );
+            DoctorDTO doctorDTO = toDoctorDTO(doctor);
             DoctorWithDatesDTO dto = new DoctorWithDatesDTO(doctorDTO, dates);
             return ResponseEntity.ok(dto);
-            
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<DoctorWithDatesDTO>> searchDoctorsByName(@RequestParam String name) {
+        try {
+            List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCase(name);
+            List<DoctorWithDatesDTO> result = doctors.stream().map(doctor -> {
+                DoctorDTO dto = toDoctorDTO(doctor);
+                List<DoctorDateDTO> dates = doctorDateService.getDatesForDoctor(doctor.getId());
+                return new DoctorWithDatesDTO(dto, dates);
+            }).toList();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    private DoctorDTO toDoctorDTO(Doctor doctor) {
+        return new DoctorDTO(
+            doctor.getId(),
+            doctor.getAge(),
+            doctor.getGender(),
+            doctor.getName(),
+            doctor.getNumber(),
+            doctor.getSpecialist().getSpecialistId(),
+            doctor.getSpecialist().getName()
+        );
+    }
+
 
     @GetMapping("/{doctorId}/dates")
     public ResponseEntity<List<DoctorDateDTO>> getDoctorDates(@PathVariable Long doctorId) {

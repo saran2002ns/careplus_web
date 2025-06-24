@@ -1,45 +1,29 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function SearchPatientForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
   const [patientResults, setPatientResults] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [status, setStatus] = useState('');
 
-  const mockPatients = [
-    {
-      patientId: 1,
-      name: 'John Doe',
-      number: '9876543210',
-      age: 30,
-      gender: 'Male',
-      address: 'Chennai',
-      date: '2025-06-25',
-      time: '09:00 AM'
-    },
-    {
-      patientId: 2,
-      name: 'Jane Smith',
-      number: '9123456780',
-      age: 28,
-      gender: 'Female',
-      address: 'Delhi',
-      date: '2025-06-22',
-      time: '02:00 PM'
-    }
-  ];
-
-  const handleSearch = () => {
-    let results = [];
-    if (searchType === 'id') {
-      results = mockPatients.filter(p => p.patientId.toString() === searchInput);
-    } else {
-      results = mockPatients.filter(p =>
-        p.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-    }
-    setPatientResults(results);
+  const handleSearch = async () => {
+    setPatientResults([]);
     setSelectedPatient(null);
+    setStatus('');
+
+    try {
+      if (searchType === 'id') {
+        const res = await axios.get(`http://localhost:8080/api/patients/${searchInput}`);
+        setPatientResults([res.data]); 
+      } else {
+        const res = await axios.get(`http://localhost:8080/api/patients/search?name=${searchInput}`);
+        setPatientResults(res.data); 
+      }
+    } catch (err) {
+      setStatus('No patient found or error occurred.');
+    }
   };
 
   return (
@@ -70,11 +54,13 @@ function SearchPatientForm() {
         </button>
       </div>
 
+      {status && <p className="text-red-600">{status}</p>}
+
       {patientResults.length > 0 && (
         <ul className="space-y-2">
-          {patientResults.map(p => (
-            <li key={p.patientId} className="flex justify-between items-center border p-2 rounded">
-              <span>{p.name} (ID: {p.patientId})</span>
+          {patientResults.map((p) => (
+            <li key={p.id} className="flex justify-between items-center border p-2 rounded">
+              <span>{p.name} (ID: {p.id})</span>
               <button
                 className="bg-green-600 text-white px-3 py-1 rounded"
                 onClick={() => setSelectedPatient(p)}
@@ -86,19 +72,18 @@ function SearchPatientForm() {
         </ul>
       )}
 
-      
       {selectedPatient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/40">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-auto relative text-left">
             <h2 className="text-xl font-bold mb-4 text-center">Patient Details</h2>
             <div className="space-y-2 text-sm">
-              <p><strong>ID:</strong> {selectedPatient.patientId}</p>
+              <p><strong>ID:</strong> {selectedPatient.id}</p>
               <p><strong>Name:</strong> {selectedPatient.name}</p>
               <p><strong>Age:</strong> {selectedPatient.age}</p>
               <p><strong>Gender:</strong> {selectedPatient.gender}</p>
               <p><strong>Phone:</strong> {selectedPatient.number}</p>
               <p><strong>Address:</strong> {selectedPatient.address}</p>
-              <p><strong>Appointment:</strong> {selectedPatient.date} at {selectedPatient.time}</p>
+              <p><strong>Available:</strong> {selectedPatient.date} at {selectedPatient.time}</p>
             </div>
             <button
               onClick={() => setSelectedPatient(null)}

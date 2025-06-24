@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function RemoveReceptionistForm() {
   const [searchType, setSearchType] = useState('id');
@@ -9,33 +10,39 @@ function RemoveReceptionistForm() {
   const [showStatus, setShowStatus] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
 
-  const mockReceptionists = [
-    { id: 1, name: 'Priya', number: '9876543210' },
-    { id: 2, name: 'Rahul', number: '9123456780' },
-    { id: 3, name: 'Priya', number: '9000000000' }
-  ];
+  const handleSearch = async () => {
+  try {
+    if (!searchInput.trim()) return;
 
-  const handleSearch = () => {
-    let result = [];
+    let res;
     if (searchType === 'id') {
-      result = mockReceptionists.filter(r => r.id.toString() === searchInput);
+      res = await axios.get(`http://localhost:8080/api/receptionists/${searchInput}`);
+      setResults([res.data]);
     } else {
-      result = mockReceptionists.filter(r =>
-        r.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
+      res = await axios.get(`http://localhost:8080/api/receptionists/search?name=${searchInput}`);
+      setResults(res.data);
     }
-    setResults(result);
-    setSelectedReceptionist(null);
-  };
+  } catch (err) {
+    setResults([]);
+    alert('Receptionist not found');
+  }
+};
 
-  const handleDelete = () => {
+const handleDelete = async () => {
+  try {
+    await axios.delete(`http://localhost:8080/api/receptionists/${selectedReceptionist.id}`);
+    setStatusMessage(`✅ Receptionist ${selectedReceptionist.name} removed successfully.`);
+  } catch (err) {
+    setStatusMessage(`❌ Failed to delete receptionist: ${err.response?.data || err.message}`);
+  } finally {
     setShowConfirm(false);
-    setStatusMessage(`Receptionist ${selectedReceptionist.name} removed successfully.`);
     setShowStatus(true);
     setSelectedReceptionist(null);
     setResults([]);
     setSearchInput('');
-  };
+  }
+};
+
 
   return (
     <div className="space-y-6">
@@ -66,7 +73,7 @@ function RemoveReceptionistForm() {
 
           {results.length > 0 && (
             <ul className="space-y-2">
-              {results.map(r => (
+              {results.map((r) => (
                 <li key={r.id} className="flex justify-between items-center border p-2 rounded">
                   <span>{r.name} (ID: {r.id}) - {r.number}</span>
                   <button
@@ -85,8 +92,7 @@ function RemoveReceptionistForm() {
         </>
       )}
 
-      
-      {showConfirm && (
+      {showConfirm && selectedReceptionist && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/40">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
             <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
@@ -111,7 +117,6 @@ function RemoveReceptionistForm() {
         </div>
       )}
 
-      
       {showStatus && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/40">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

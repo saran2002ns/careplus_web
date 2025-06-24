@@ -1,74 +1,35 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function ViewByDoctor() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
- 
-  const mockAppointments = [
-    {
-      id: 201,
-      date: '2025-06-25',
-      time: '10:00',
-      doctor: {
-        doctorId: 1,
-        name: 'Dr. Ravi',
-        number: '9876543210',
-        age: 45,
-        gender: 'Male',
-        specialist: 'Cardiologist'
-      },
-      patient: {
-        id: 1,
-        name: 'Ravi Kumar',
-        number: '1234567890',
-        gender: 'Male',
-        age: 30,
-        address: 'Chennai'
+  const handleSearch = async () => {
+    if (!searchInput.trim()) return;
+
+    setLoading(true);
+    try {
+      let response;
+      if (searchType === 'id') {
+        response = await axios.get(`http://localhost:8080/api/appointments/doctor/${searchInput}`);
+      } else {
+        response = await axios.get(`http://localhost:8080/api/appointments/doctor/search?name=${searchInput}`);
       }
-    },
-    {
-      id: 202,
-      date: '2025-06-26',
-      time: '11:00',
-      doctor: {
-        doctorId: 2,
-        name: 'Dr. Meena',
-        number: '8765432109',
-        age: 38,
-        gender: 'Female',
-        specialist: 'Dermatologist'
-      },
-      patient: {
-        id: 2,
-        name: 'Priya Sharma',
-        number: '9999988888',
-        gender: 'Female',
-        age: 28,
-        address: 'Madurai'
-      }
+      setResults(response.data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setResults([]);
+      alert("No appointments found or server error.");
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const handleSearch = () => {
-    let filtered = [];
-
-    if (searchType === 'id') {
-      filtered = mockAppointments.filter(app =>
-        app.doctor.doctorId.toString() === searchInput.trim()
-      );
-    } else {
-      filtered = mockAppointments.filter(app =>
-        app.doctor.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-    }
-
-    setResults(filtered);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       <h2 className="text-xl font-semibold">Search Appointments by Doctor</h2>
 
       <div className="flex gap-2">
@@ -95,27 +56,31 @@ function ViewByDoctor() {
         </button>
       </div>
 
-      {results.length > 0 ? (
+      {loading ? (
+        <p className="text-gray-600">Loading...</p>
+      ) : results.length > 0 ? (
         <div className="grid gap-4">
           {results.map((appt) => (
-            <div key={appt.id} className="border rounded-lg p-4 shadow">
+            <div key={appt.id} className="border rounded-lg p-4 shadow bg-white">
               <h3 className="text-lg font-semibold mb-2">Appointment ID: {appt.id}</h3>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
+                
                 <div>
                   <h4 className="font-medium mb-1">Doctor Info</h4>
-                  <p><strong>Name:</strong> {appt.doctor.name}</p>
-                  <p><strong>ID:</strong> {appt.doctor.doctorId}</p>
-                  <p><strong>Phone:</strong> {appt.doctor.number}</p>
-                  <p><strong>Specialist:</strong> {appt.doctor.specialist}</p>
+                  <p><strong>Name:</strong> {appt.docter?.doctor?.name || 'N/A'}</p>
+                  <p><strong>ID:</strong> {appt.docter?.doctor?.doctorId || 'N/A'}</p>
+                  <p><strong>Phone:</strong> {appt.docter?.doctor?.number || 'N/A'}</p>
+                  <p><strong>Specialist:</strong> {appt.docter?.doctor?.specialist || 'N/A'}</p>
                 </div>
 
+              
                 <div>
                   <h4 className="font-medium mb-1">Patient Info</h4>
-                  <p><strong>Name:</strong> {appt.patient.name}</p>
-                  <p><strong>ID:</strong> {appt.patient.id}</p>
-                  <p><strong>Phone:</strong> {appt.patient.number}</p>
-                  <p><strong>Gender:</strong> {appt.patient.gender}</p>
+                  <p><strong>Name:</strong> {appt.patient?.name || 'N/A'}</p>
+                  <p><strong>ID:</strong> {appt.patient?.id || 'N/A'}</p>
+                  <p><strong>Phone:</strong> {appt.patient?.number || 'N/A'}</p>
+                  <p><strong>Gender:</strong> {appt.patient?.gender || 'N/A'}</p>
                 </div>
               </div>
 

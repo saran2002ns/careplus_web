@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="appoiments")
-public class Appoiment {
+public class Appointment {
     
     @Id
     @Column(name ="appoiment_id")

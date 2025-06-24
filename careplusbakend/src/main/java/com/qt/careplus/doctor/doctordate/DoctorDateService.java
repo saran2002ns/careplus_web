@@ -21,6 +21,8 @@ public class DoctorDateService {
             DoctorDateDTO dto = new DoctorDateDTO();
             dto.setDateId(date.getId());
             dto.setAvailable(date.isAvailable());
+            dto.setDate(date.getDate());
+           
 
             List<TimeSlotDTO> slots = date.getTimeSlots().stream()
                 .map(slot -> new TimeSlotDTO(slot.getTime(), slot.isAvailable()))

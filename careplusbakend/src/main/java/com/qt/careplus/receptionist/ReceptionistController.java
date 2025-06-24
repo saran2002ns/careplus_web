@@ -14,6 +14,26 @@ public class ReceptionistController {
 
     private final ReceptionistRepository receptionistRepository;
 
+   @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody ReceptionistLoginRequest request) {
+        Receptionist receptionist = null;
+         System.out.println(request);
+
+        try {
+            Integer id = Integer.parseInt(request.getIdentifier());
+            receptionist = receptionistRepository.findById(id).orElse(null);
+        } catch (NumberFormatException e) {
+            receptionist = receptionistRepository.findByNumber(request.getIdentifier());
+        }
+
+        if (receptionist != null && receptionist.getPassword().equals(request.getPassword())) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
+
+
     @GetMapping
     public ResponseEntity<List<Receptionist>> getAllReceptionists() {
         try {
@@ -35,6 +55,17 @@ public class ReceptionistController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Receptionist>> getReceptionistByName(@RequestParam String name) {
+        try {
+            List<Receptionist> results = receptionistRepository.findByNameContainingIgnoreCase(name);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<String> createReceptionist(@RequestBody Receptionist receptionist) {

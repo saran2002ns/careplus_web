@@ -36,6 +36,17 @@ public class PatientController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Patient>> getPatientsByName(@RequestParam String name) {
+        try {
+            List<Patient> patients = patientRepository.findByNameContainingIgnoreCase(name);
+            return ResponseEntity.ok(patients);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+
     @PostMapping
     public ResponseEntity<String> createPatient(@RequestBody Patient patient) {
         try {

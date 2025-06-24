@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import axios from 'axios';
+import { timeOptions } from '../../services/db';
 function UpdatePatientForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
@@ -7,29 +8,6 @@ function UpdatePatientForm() {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState('');
-
-  const mockPatients = [
-    {
-      patientId: 1,
-      name: 'John Doe',
-      number: '9876543210',
-      age: 30,
-      gender: 'Male',
-      address: 'New York',
-      date: '2025-06-25',
-      time: '09:00 AM'
-    },
-    {
-      patientId: 2,
-      name: 'Jane Smith',
-      number: '9123456780',
-      age: 28,
-      gender: 'Female',
-      address: 'Los Angeles',
-      date: '2025-06-22',
-      time: '02:00 PM'
-    }
-  ];
 
   const [updatedPatient, setUpdatedPatient] = useState({
     name: '',
@@ -41,18 +19,22 @@ function UpdatePatientForm() {
     time: ''
   });
 
-  const handleSearch = () => {
-    let results = [];
-    if (searchType === 'id') {
-      results = mockPatients.filter(p => p.patientId.toString() === searchInput);
-    } else {
-      results = mockPatients.filter(p =>
-        p.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-    }
-    setPatientResults(results);
+  const handleSearch = async () => {
+    setPatientResults([]);
     setSelectedPatient(null);
     setStatus('');
+    try {
+      if (searchType === 'id') {
+        const res = await axios.get(`http://localhost:8080/api/patients/${searchInput}`);
+        setPatientResults([res.data]); 
+      } else {
+        const res = await axios.get(`http://localhost:8080/api/patients/search?name=${searchInput}`);
+        setPatientResults(res.data); 
+      }
+    } catch (err) {
+      setStatus('No patient found.');
+      setShowModal(true);
+    }
   };
 
   const handleSelectPatient = (patient) => {
@@ -64,15 +46,21 @@ function UpdatePatientForm() {
     setUpdatedPatient({ ...updatedPatient, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus(`Patient ${updatedPatient.name} updated successfully!`);
-    setShowModal(true);
-    setTimeout(() => {
-      setSelectedPatient(null);
-      setPatientResults([]);
-      setSearchInput('');
-    }, 1000);
+    try {
+      const res = await axios.put(`http://localhost:8080/api/patients/${selectedPatient.id}`, updatedPatient);
+      setStatus(res.data);
+    } catch (err) {
+      setStatus(err.response?.data || 'Failed to update patient.');
+    } finally {
+      setShowModal(true);
+      setTimeout(() => {
+        setSelectedPatient(null);
+        setPatientResults([]);
+        setSearchInput('');
+      }, 1000);
+    }
   };
 
   return (
@@ -105,8 +93,8 @@ function UpdatePatientForm() {
           {patientResults.length > 0 && (
             <ul className="space-y-2 max-h-40 overflow-auto">
               {patientResults.map(p => (
-                <li key={p.patientId} className="flex justify-between items-center border p-2 rounded">
-                  <span>{p.name} (ID: {p.patientId})</span>
+                <li key={p.id} className="flex justify-between items-center border p-2 rounded">
+                  <span>{p.name} (ID: {p.id})</span>
                   <button
                     className="bg-green-600 text-white px-3 py-1 rounded"
                     onClick={() => handleSelectPatient(p)}
@@ -187,7 +175,6 @@ function UpdatePatientForm() {
         </form>
       )}
 
-     
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/40 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">

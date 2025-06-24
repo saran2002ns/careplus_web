@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
-
-const specialists = [
-  'Cardiologist',
-  'Neurologist',
-  'Orthopedist',
-  'Dermatologist',
-  'Pediatrician',
-  'Psychiatrist',
-  'Oncologist',
-  'ENT Specialist',
-  'Ayurvedic Specialist',
-  'Gastroenterologist',
-];
+import { specialists } from "../../services/db";
 
 function AddDoctorForm() {
   const [showModal, setShowModal] = useState(false);
   const [status, setStatus] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    gender: '',
+    number: '',
+  });
   const [selectedSpecialist, setSelectedSpecialist] = useState('');
   const [specialistId, setSpecialistId] = useState('');
 
@@ -26,12 +20,48 @@ function AddDoctorForm() {
     setSpecialistId(index >= 0 ? index + 1 : '');
   };
 
-  const handleSubmit = (e) => {
+  const handleInputChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
-    const isSuccess = true;
-    setStatus(isSuccess ? 'Doctor added successfully!' : 'Unable to add doctor.');
+    const doctorDTO = {
+      name: formData.name,
+      age: parseInt(formData.age),
+      gender: formData.gender,
+      number: formData.number,
+      specialistId: parseInt(specialistId),
+      specialist: selectedSpecialist
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/api/doctors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(doctorDTO)
+      });
+
+      const text = await res.text();
+
+      if (res.ok) {
+        setStatus(text);
+        setFormData({ name: '', age: '', gender: '', number: '' });
+        setSelectedSpecialist('');
+        setSpecialistId('');
+      } else {
+        setStatus("Error: " + text);
+      }
+    } catch (err) {
+      setStatus("Failed to connect to server");
+    }
+
     setShowModal(true);
   };
 
@@ -39,10 +69,42 @@ function AddDoctorForm() {
     <div className="relative">
       <h2 className="text-xl font-semibold mb-4">Add New Doctor</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-        <input type="text" placeholder="Name" className="border p-2" required />
-        <input type="number" placeholder="Age" className="border p-2" required />
-        <input type="text" placeholder="Gender" className="border p-2" required />
-        <input type="text" placeholder="Phone Number" className="border p-2" required />
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          className="border p-2"
+          value={formData.name}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="number"
+          name="age"
+          placeholder="Age"
+          className="border p-2"
+          value={formData.age}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="gender"
+          placeholder="Gender"
+          className="border p-2"
+          value={formData.gender}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="number"
+          placeholder="Phone Number"
+          className="border p-2"
+          value={formData.number}
+          onChange={handleInputChange}
+          required
+        />
 
         <select
           value={selectedSpecialist}

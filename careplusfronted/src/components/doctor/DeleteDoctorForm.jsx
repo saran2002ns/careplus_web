@@ -1,40 +1,71 @@
 import React, { useState } from 'react';
 
-function DeleteDoctorForm() {
+export default function DeleteDoctorForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
-  const [doctorResults, setDoctorResults] = useState([]);
+  const [results, setResults] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showOverlay, setShowOverlay] = useState(false);
   const [status, setStatus] = useState('');
 
- 
-  const mockDoctors = [
-    { doctorId: 1, name: 'Dr. Ravi', specialist: 'Cardiologist' },
-    { doctorId: 2, name: 'Dr. Meena', specialist: 'Dermatologist' },
-    { doctorId: 3, name: 'Dr. Karthik', specialist: 'Neurologist' },
-  ];
+  const handleSearch = async () => {
+    try {
+      let response;
+      if (searchType === 'id') {
+        response = await fetch(`http://localhost:8080/api/doctors/${searchInput.trim()}`);
+        if (!response.ok) throw new Error("Doctor not found");
+        const doctor = await response.json();
+        setResults([
+          {
+            doctorId: doctor.doctorDTO.doctorId,
+            name: doctor.doctorDTO.name,
+            specialist: doctor.doctorDTO.specialist,
+            availableDates: doctor.dates || [],
+          },
+        ]);
+      } else {
+        response = await fetch(`http://localhost:8080/api/doctors/search?name=${searchInput.trim()}`);
+        if (!response.ok) throw new Error("Doctors not found");
+        const doctors = await response.json();
+        const formatted = doctors.map(doc => ({
+          doctorId: doc.doctor?.doctorId || doc.doctorId,
+          name: doc.doctor?.name || doc.name,
+          specialist: doc.doctor?.specialist || doc.specialist,
+          availableDates: doc.availableDates || [],
+        }));
+        setResults(formatted);
+      }
 
-  const handleSearch = () => {
-    let results = [];
-    if (searchType === 'id') {
-      results = mockDoctors.filter(doc => doc.doctorId.toString() === searchInput);
-    } else {
-      results = mockDoctors.filter(doc =>
-        doc.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
+      setSelectedDoctor(null);
+      setStatus('');
+    } catch (error) {
+      console.error("Error fetching doctor(s):", error);
+      setStatus("Doctor not found or server error.");
+      setResults([]);
     }
-    setDoctorResults(results);
-    setSelectedDoctor(null);
-    setStatus('');
   };
 
-  const handleDelete = () => {
-    setStatus(`Doctor ${selectedDoctor.name} (ID: ${selectedDoctor.doctorId}) deleted successfully!`);
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/doctors/${selectedDoctor.doctorId}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.text();
+
+      if (response.ok) {
+        setStatus(`Doctor ${selectedDoctor.name} (ID: ${selectedDoctor.doctorId}) deleted successfully!`);
+        setResults(prev => prev.filter(doc => doc.doctorId !== selectedDoctor.doctorId));
+      } else {
+        setStatus(`Failed to delete doctor: ${result}`);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      setStatus("Error connecting to server.");
+    }
+
     setShowOverlay(true);
-    setDoctorResults([]);
     setSelectedDoctor(null);
-    setSearchInput('');
   };
 
   return (
@@ -67,9 +98,11 @@ function DeleteDoctorForm() {
             </button>
           </div>
 
-          {doctorResults.length > 0 && (
+          {status && <p className="text-red-600">{status}</p>}
+
+          {results.length > 0 && (
             <ul className="space-y-2 max-h-40 overflow-auto">
-              {doctorResults.map(doc => (
+              {results.map(doc => (
                 <li
                   key={doc.doctorId}
                   className="flex justify-between items-center border p-2 rounded"
@@ -88,8 +121,8 @@ function DeleteDoctorForm() {
         </>
       ) : (
         <div className="text-center space-y-4">
-          <p>Are you sure you want to delete:</p>
-          <div className="text-sm font-medium border p-4 rounded">
+          <p className="text-lg">Are you sure you want to delete this doctor?</p>
+          <div className="text-sm font-medium border p-4 rounded bg-gray-100">
             <p><strong>ID:</strong> {selectedDoctor.doctorId}</p>
             <p><strong>Name:</strong> {selectedDoctor.name}</p>
             <p><strong>Specialist:</strong> {selectedDoctor.specialist}</p>
@@ -111,7 +144,6 @@ function DeleteDoctorForm() {
         </div>
       )}
 
-      
       {showOverlay && (
         <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
@@ -128,5 +160,3 @@ function DeleteDoctorForm() {
     </div>
   );
 }
-
-export default DeleteDoctorForm;

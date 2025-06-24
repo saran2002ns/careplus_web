@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { specialists } from '../../services/db';
 
-function UpdateDoctorForm() {
+export default function UpdateDoctorForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
   const [doctorResults, setDoctorResults] = useState([]);
@@ -9,37 +10,46 @@ function UpdateDoctorForm() {
   const [status, setStatus] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
 
-  const specialists = [
-    'Cardiologist',
-    'Neurologist',
-    'Orthopedist',
-    'Dermatologist',
-    'Pediatrician',
-    'Psychiatrist',
-    'Oncologist',
-    'ENT Specialist',
-    'Ayurvedic Specialist',
-    'Gastroenterologist'
-  ];
+  const handleSearch = async () => {
+    try {
+      let response;
+      if (searchType === 'id') {
+        response = await fetch(`http://localhost:8080/api/doctors/${searchInput.trim()}`);
+        if (!response.ok) throw new Error("Doctor not found");
+        const data = await response.json();
+        const flatDoctor = {
+          doctorId: data.doctorDTO.doctorId,
+          name: data.doctorDTO.name,
+          age: data.doctorDTO.age,
+          gender: data.doctorDTO.gender,
+          number: data.doctorDTO.number,
+          specialist: data.doctorDTO.specialist,
+          specialistId: data.doctorDTO.specialistId,
+        };
+        setDoctorResults([flatDoctor]);
+      } else {
+        response = await fetch(`http://localhost:8080/api/doctors/search?name=${searchInput.trim()}`);
+        if (!response.ok) throw new Error("No matching doctors found");
+        const data = await response.json();
+        const flattened = data.map(d => ({
+          doctorId: d.doctor?.doctorId || d.doctorId,
+          name: d.doctor?.name || d.name,
+          age: d.doctor?.age || d.age,
+          gender: d.doctor?.gender || d.gender,
+          number: d.doctor?.number || d.number,
+          specialist: d.doctor?.specialist || d.specialist,
+          specialistId: d.doctor?.specialistId || d.specialistId,
+        }));
+        setDoctorResults(flattened);
+      }
 
-  const mockDoctors = [
-    { doctorId: 1, name: 'Dr. Ravi', age: 45, gender: 'Male', number: '9876543210', specialistId: 1, specialist: 'Cardiologist' },
-    { doctorId: 2, name: 'Dr. Meena', age: 38, gender: 'Female', number: '9123456780', specialistId: 4, specialist: 'Dermatologist' },
-    { doctorId: 3, name: 'Dr. Karthik', age: 40, gender: 'Male', number: '9000000000', specialistId: 2, specialist: 'Neurologist' }
-  ];
-
-  const handleSearch = () => {
-    let results = [];
-    if (searchType === 'id') {
-      results = mockDoctors.filter(doc => doc.doctorId.toString() === searchInput);
-    } else {
-      results = mockDoctors.filter(doc =>
-        doc.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
+      setSelectedDoctor(null);
+      setStatus('');
+    } catch (err) {
+      console.error("Search error:", err);
+      setStatus("Failed to find doctor.");
+      setDoctorResults([]);
     }
-    setDoctorResults(results);
-    setSelectedDoctor(null);
-    setStatus('');
   };
 
   const handleDoctorSelect = (doctor) => {
@@ -57,13 +67,33 @@ function UpdateDoctorForm() {
     setUpdatedDoctor({
       ...updatedDoctor,
       specialist: selectedSpecialist,
-      specialistId: specialistIndex + 1
+      specialistId: specialistIndex + 1,
     });
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    setStatus(`Doctor ${updatedDoctor.name} updated successfully!`);
+    try {
+      const response = await fetch(`http://localhost:8080/api/doctors/${updatedDoctor.doctorId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDoctor),
+      });
+
+      const result = await response.text();
+
+      if (response.ok) {
+        setStatus(`Doctor ${updatedDoctor.name} updated successfully!`);
+      } else {
+        setStatus(`Update failed: ${result}`);
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+      setStatus("Server error occurred while updating doctor.");
+    }
+
     setShowOverlay(true);
   };
 
@@ -100,6 +130,8 @@ function UpdateDoctorForm() {
               Search
             </button>
           </div>
+
+          {status && <p className="text-red-600">{status}</p>}
 
           {doctorResults.length > 0 && (
             <ul className="space-y-2 max-h-40 overflow-auto">
@@ -185,23 +217,19 @@ function UpdateDoctorForm() {
         </form>
       )}
 
-      
-    {showOverlay && (
-      <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
-        <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
-          <h3 className="text-lg font-semibold mb-4">{status}</h3>
-          <button
-            onClick={handleCloseOverlay}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Close
-          </button>
+      {showOverlay && (
+        <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
+            <h3 className="text-lg font-semibold mb-4">{status}</h3>
+            <button
+              onClick={handleCloseOverlay}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </div>
-    )}
-
+      )}
     </div>
   );
 }
-
-export default UpdateDoctorForm;

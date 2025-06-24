@@ -1,70 +1,25 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function ViewByPatient() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
   const [results, setResults] = useState([]);
 
- 
-  const mockAppointments = [
-    {
-      id: 201,
-      date: '2025-06-25',
-      time: '10:00',
-      doctor: {
-        doctorId: 1,
-        name: 'Dr. Ravi',
-        number: '9876543210',
-        age: 45,
-        gender: 'Male',
-        specialist: 'Cardiologist'
-      },
-      patient: {
-        id: 1,
-        name: 'Ravi Kumar',
-        number: '1234567890',
-        gender: 'Male',
-        age: 30,
-        address: 'Chennai'
-      }
-    },
-    {
-      id: 202,
-      date: '2025-06-26',
-      time: '11:00',
-      doctor: {
-        doctorId: 2,
-        name: 'Dr. Meena',
-        number: '8765432109',
-        age: 38,
-        gender: 'Female',
-        specialist: 'Dermatologist'
-      },
-      patient: {
-        id: 2,
-        name: 'Priya Sharma',
-        number: '9999988888',
-        gender: 'Female',
-        age: 28,
-        address: 'Madurai'
-      }
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/appointments');
+      const data = response.data;
+
+      const filtered = searchType === 'id'
+        ? data.filter(app => app.patient.id.toString() === searchInput.trim())
+        : data.filter(app => app.patient.name.toLowerCase().includes(searchInput.toLowerCase()));
+
+      setResults(filtered);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setResults([]);
     }
-  ];
-
-  const handleSearch = () => {
-    let filtered = [];
-
-    if (searchType === 'id') {
-      filtered = mockAppointments.filter(app =>
-        app.patient.id.toString() === searchInput.trim()
-      );
-    } else {
-      filtered = mockAppointments.filter(app =>
-        app.patient.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
-    }
-
-    setResults(filtered);
   };
 
   return (
@@ -112,10 +67,10 @@ function ViewByPatient() {
 
                 <div>
                   <h4 className="font-medium mb-1">Doctor Info</h4>
-                  <p><strong>Name:</strong> {appt.doctor.name}</p>
-                  <p><strong>ID:</strong> {appt.doctor.doctorId}</p>
-                  <p><strong>Phone:</strong> {appt.doctor.number}</p>
-                  <p><strong>Specialist:</strong> {appt.doctor.specialist}</p>
+                  <p><strong>Name:</strong> {appt.docter.doctor.name}</p>
+                  <p><strong>ID:</strong> {appt.docter.doctor.doctorId}</p>
+                  <p><strong>Phone:</strong> {appt.docter.doctor.number}</p>
+                  <p><strong>Specialist:</strong> {appt.docter.doctor.specialist}</p>
                 </div>
               </div>
 

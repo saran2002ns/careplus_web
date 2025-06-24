@@ -13,6 +13,24 @@ import java.util.List;
 public class AdminController {
 
     private final AdminRepository adminRepository;
+    
+     @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody AdminLoginRequest request) {
+        Admin admin = null;
+        System.out.println(request);
+        try {
+            Byte id = Byte.parseByte(request.getIdentifier());
+            admin = adminRepository.findById(id).orElse(null);
+        } catch (NumberFormatException e) {
+            admin = adminRepository.findByNumber(request.getIdentifier());
+        }
+
+        if (admin != null && admin.getPassword().equals(request.getPassword())) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
 
     @PostMapping
     public ResponseEntity<String> createAdmin(@RequestBody Admin admin) {
@@ -76,6 +94,7 @@ public class AdminController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Admin> getAdminById(@PathVariable Byte id) {
+      
         try {
             Admin admin = adminRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Admin not found"));

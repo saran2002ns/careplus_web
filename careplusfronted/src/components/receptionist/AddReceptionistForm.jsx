@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function AddReceptionistForm() {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ function AddReceptionistForm() {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -25,17 +26,25 @@ function AddReceptionistForm() {
       return;
     }
 
-    
-    setStatus(`Receptionist ${formData.name} added successfully!`);
-    setShowOverlay(true);
+    const receptionistPayload = {
+      name: formData.name,
+      number: formData.number,
+      password: formData.password,
+    };
 
-   
-    setFormData({
-      name: '',
-      number: '',
-      password: '',
-      confirmPassword: '',
-    });
+    try {
+      const response = await axios.post('http://localhost:8080/api/receptionists', receptionistPayload);
+      setStatus(`✅ ${response.data}`);
+      setShowOverlay(true);
+      setFormData({
+        name: '',
+        number: '',
+        password: '',
+        confirmPassword: '',
+      });
+    } catch (err) {
+      setError(`❌ Failed to add receptionist: ${err.response?.data || err.message}`);
+    }
   };
 
   return (
@@ -80,14 +89,13 @@ function AddReceptionistForm() {
           required
         />
 
-       
         {error && (
           <div className="col-span-2 text-red-600 text-sm">{error}</div>
         )}
 
         <div className="col-span-2">
           <button
-            
+           
             className="mt-2 bg-green-600 text-white px-4 py-2 rounded"
           >
             Add Receptionist
@@ -95,7 +103,6 @@ function AddReceptionistForm() {
         </div>
       </form>
 
-     
       {showOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/40">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
