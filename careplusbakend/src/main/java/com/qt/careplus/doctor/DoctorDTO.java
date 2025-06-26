@@ -15,6 +15,7 @@ public class DoctorDTO {
     private String number;
     private Byte specialistId;
     private String specialist;
+    private String address;
 }
 
 

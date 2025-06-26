@@ -67,6 +67,7 @@ public class DoctorDateController {
             } else {
               
                 doctorDate = new DoctorDate();
+               
                 doctorDate.setDoctor(doctor);
                 doctorDate.setAvailable(request.isAvailable());
                 doctorDate.setDate(date);

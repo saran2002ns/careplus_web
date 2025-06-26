@@ -18,5 +18,6 @@ public class DoctorDateDTO {
     private Long doctorId;
     private boolean available;
     private Date date;
+   
     private List<TimeSlotDTO> timeSlots;
 }

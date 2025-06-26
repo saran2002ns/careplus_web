@@ -47,5 +47,7 @@ public class DoctorDate {
    @OneToMany(mappedBy = "doctorDate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TimeSlot> timeSlots;
 
+   
+
 
 }

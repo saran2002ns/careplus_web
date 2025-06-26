@@ -39,5 +39,8 @@ public class Doctor {
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DoctorDate> availableDates;
 
+     @Column(name = "doctor_address")
+    private String address;
+
   
 }

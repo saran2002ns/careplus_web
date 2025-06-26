@@ -43,6 +43,7 @@ public class DoctorController {
             doctor.setGender(request.getGender());
             doctor.setNumber(request.getNumber());
             doctor.setSpecialist(specialist);
+            doctor.setAddress(request.getAddress());
             doctorRepository.save(doctor);
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -96,7 +97,8 @@ public class DoctorController {
             doctor.getName(),
             doctor.getNumber(),
             doctor.getSpecialist().getSpecialistId(),
-            doctor.getSpecialist().getName()
+            doctor.getSpecialist().getName(),
+            doctor.getAddress()
         );
     }
 
@@ -124,6 +126,7 @@ public class DoctorController {
                 dto.setNumber(doctor.getNumber());
                 dto.setSpecialistId(doctor.getSpecialist().getSpecialistId());
                 dto.setSpecialist(doctor.getSpecialist().getName());
+                dto.setAddress(doctor.getAddress());
                 return dto;
             }).toList();
             return ResponseEntity.ok(dtos);
