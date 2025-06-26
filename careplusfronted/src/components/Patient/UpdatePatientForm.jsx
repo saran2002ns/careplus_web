@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { timeOptions } from '../../services/db';
+
 function UpdatePatientForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
@@ -26,10 +27,10 @@ function UpdatePatientForm() {
     try {
       if (searchType === 'id') {
         const res = await axios.get(`http://localhost:8080/api/patients/${searchInput}`);
-        setPatientResults([res.data]); 
+        setPatientResults([res.data]);
       } else {
         const res = await axios.get(`http://localhost:8080/api/patients/search?name=${searchInput}`);
-        setPatientResults(res.data); 
+        setPatientResults(res.data);
       }
     } catch (err) {
       setStatus('No patient found.');
@@ -49,7 +50,10 @@ function UpdatePatientForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`http://localhost:8080/api/patients/${selectedPatient.id}`, updatedPatient);
+      const res = await axios.put(
+        `http://localhost:8080/api/patients/${selectedPatient.id}`,
+        updatedPatient
+      );
       setStatus(res.data);
     } catch (err) {
       setStatus(err.response?.data || 'Failed to update patient.');
@@ -65,15 +69,15 @@ function UpdatePatientForm() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Update Patient</h2>
+      {/* <h2 className="text-xl font-semibold mb-2">Update Patient</h2> */}
 
       {!selectedPatient ? (
         <>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
-              className="border p-2"
+              className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
             >
               <option value="id">Search by ID</option>
               <option value="name">Search by Name</option>
@@ -81,97 +85,115 @@ function UpdatePatientForm() {
             <input
               type="text"
               placeholder={`Enter ${searchType === 'id' ? 'ID' : 'Name'}`}
-              className="border p-2"
+              className="border p-2 rounded flex-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-500"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button onClick={handleSearch} className="bg-blue-600 text-white px-4 py-2 rounded">
-              Search
-            </button>
+             <button
+                onClick={handleSearch}
+                className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              >
+                Search
+              </button>
           </div>
 
           {patientResults.length > 0 && (
-            <ul className="space-y-2 max-h-40 overflow-auto">
-              {patientResults.map(p => (
-                <li key={p.id} className="flex justify-between items-center border p-2 rounded">
-                  <span>{p.name} (ID: {p.id})</span>
-                  <button
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                    onClick={() => handleSelectPatient(p)}
-                  >
-                    Select
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="space-y-4 w-full h-[450px] overflow-y-auto mt-4 pr-2">
+            {patientResults.map((p) => (
+              <li
+                key={p.id}
+                className="flex justify-between items-center bg-gray-50 border border-gray-300 shadow-sm rounded-xl px-6 py-4"
+              >
+                <div>
+                  <p className="font-semibold text-lg text-gray-800">{p.name}</p>
+                  <p className="text-sm text-gray-600">
+                    ID: {p.id} | Gender: {p.gender} | Age: {p.age}
+                  </p>
+                  <p className="text-sm text-gray-600">Phone: {p.number}</p>
+                </div>
+                <button
+                  onClick={() => handleSelectPatient(p)}
+                  className="px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+                >
+                  Select
+                </button>
+              </li>
+            ))}
+          </ul>
+           )}
+
         </>
       ) : (
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 font-medium">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="col-span-2 font-medium mb-2">
             Updating: <strong>{selectedPatient.name}</strong>
           </div>
+
           <input
             type="text"
             name="name"
-            placeholder="Name"
-            className="border p-2"
+            placeholder="Enter Name"
+            className="border p-2 rounded"
             value={updatedPatient.name}
             onChange={handleChange}
           />
           <input
             type="text"
             name="number"
-            placeholder="Phone Number"
-            className="border p-2"
+            placeholder="Enter Phone Number"
+            className="border p-2 rounded"
             value={updatedPatient.number}
             onChange={handleChange}
           />
           <input
             type="number"
             name="age"
-            placeholder="Age"
-            className="border p-2"
+            placeholder="Enter Age"
+            className="border p-2 rounded"
             value={updatedPatient.age}
             onChange={handleChange}
           />
           <input
             type="text"
             name="gender"
-            placeholder="Gender"
-            className="border p-2"
+            placeholder="Enter Gender"
+            className="border p-2 rounded"
             value={updatedPatient.gender}
             onChange={handleChange}
           />
           <input
             type="text"
             name="address"
-            placeholder="Address"
-            className="border p-2"
+            placeholder="Enter Address"
+            className="border p-2 rounded"
             value={updatedPatient.address}
             onChange={handleChange}
           />
           <input
             type="date"
             name="date"
-            className="border p-2"
+            className="border p-2 rounded"
             value={updatedPatient.date}
             onChange={handleChange}
           />
           <input
             type="text"
             name="time"
-            placeholder="Time"
-            className="border p-2"
+            placeholder="Enter Time"
+            className="border p-2 rounded"
             value={updatedPatient.time}
             onChange={handleChange}
           />
 
-          <div className="col-span-2">
-            <button className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded">
+          <div className="col-span-2 flex justify-center">
+            <button
+            
+              className="px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+            >
               Submit Update
             </button>
           </div>
+
         </form>
       )}
 

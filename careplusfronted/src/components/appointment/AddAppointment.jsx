@@ -120,25 +120,66 @@ export default function AddAppointment() {
 
       {error && <p className="text-red-500">{error}</p>}
 
+      {/* Patient Search */}
       <div className="space-y-2">
         <div className="flex gap-2">
-          <select value={searchTypePatient} onChange={e => setSearchTypePatient(e.target.value)} className="border p-2">
+          <select
+            value={searchTypePatient}
+            onChange={e => setSearchTypePatient(e.target.value)}
+            className="border p-2 rounded border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
             <option value="id">Patient by ID</option>
             <option value="name">Patient by Name</option>
           </select>
-          <input type="text" value={searchInputPatient} onChange={e => setSearchInputPatient(e.target.value)} className="border p-2 flex-1" placeholder="Enter Patient ID or Name" />
-          <button onClick={searchPatient} className="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+          <input
+            type="text"
+            value={searchInputPatient}
+            onChange={e => setSearchInputPatient(e.target.value)}
+            className="border p-2 flex-1 rounded border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            placeholder="Enter Patient ID or Name"
+          />
+          <button
+            onClick={searchPatient}
+            className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          >
+            Search
+          </button>
         </div>
-        {!selectedPatient ? (
-          <ul className="space-y-1">
+
+        {!selectedPatient && patientResults.length > 0 && (
+          <ul className="space-y-4 w-full h-[300px] overflow-y-auto mt-4 pr-2">
             {patientResults.map(p => (
-              <li key={p.id} className="border p-2 flex justify-between items-center">
-                <span>{p.name} (ID: {p.id})</span>
-                <button onClick={() => setSelectedPatient(p)} className="bg-green-600 text-white px-3 py-1 rounded">Select</button>
+              <li
+                key={p.id}
+                className={`flex justify-between items-center border p-4 rounded shadow-sm ${
+                  p.allocated ? 'bg-gray-100 opacity-70' : 'bg-orange-50'
+                }`}
+              >
+                <div>
+                  <p className="text-gray-800 font-semibold">
+                    {p.name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    ID: {p.id}, Gender: {p.gender}, Age: {p.age}
+                  </p>
+                </div>
+
+                {p.allocated ? (
+                  <span className="text-sm text-red-600 font-medium">Allocated</span>
+                ) : (
+                  <button
+                    onClick={() => setSelectedPatient(p)}
+                    className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                  >
+                    Select
+                  </button>
+                )}
               </li>
             ))}
           </ul>
-        ) : (
+        )}
+
+        {selectedPatient && (
           <div className="p-4 border rounded bg-green-50 space-y-1">
             <h4 className="font-semibold">Patient Details</h4>
             <p><strong>Name:</strong> {selectedPatient.name}</p>
@@ -149,25 +190,78 @@ export default function AddAppointment() {
         )}
       </div>
 
+      {/* Doctor Search */}
       <div className="space-y-2">
         <div className="flex gap-2">
-          <select value={searchTypeDoctor} onChange={e => setSearchTypeDoctor(e.target.value)} className="border p-2">
+          <select
+            value={searchTypeDoctor}
+            onChange={e => setSearchTypeDoctor(e.target.value)}
+            className="border p-2 rounded border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
             <option value="id">Doctor by ID</option>
             <option value="name">Doctor by Name</option>
           </select>
-          <input type="text" value={searchInputDoctor} onChange={e => setSearchInputDoctor(e.target.value)} className="border p-2 flex-1" placeholder="Enter Doctor ID or Name" />
-          <button onClick={searchDoctor} className="bg-blue-600 text-white px-4 py-2 rounded">Search</button>
+          <input
+            type="text"
+            value={searchInputDoctor}
+            onChange={e => setSearchInputDoctor(e.target.value)}
+            className="border p-2 flex-1 rounded border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            placeholder="Enter Doctor ID or Name"
+          />
+          <button
+            onClick={searchDoctor}
+            className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          >
+            Search
+          </button>
         </div>
-        {!selectedDoctor ? (
-          <ul className="space-y-1">
-            {doctorResults.map(item => (
-              <li key={item.doctor.doctorId} className="border p-2 flex justify-between items-center">
-                <span>{item.doctor.name} (ID: {item.doctor.doctorId})</span>
-                <button onClick={() => { setSelectedDoctor(item); setSelectedDate(''); setSelectedTime(''); }} className="bg-green-600 text-white px-3 py-1 rounded">Select</button>
-              </li>
-            ))}
+
+        {!selectedDoctor && doctorResults.length > 0 && (
+          <ul className="space-y-4 w-full h-[300px] overflow-y-auto mt-4 pr-2">
+            {doctorResults.map(item => {
+              const hasAvailableSlots = item.availableDates.some(d =>
+                d.timeSlots.some(ts => ts.available)
+              );
+
+              return (
+                <li
+                  key={item.doctor.doctorId}
+                  className={`flex justify-between items-center border p-4 rounded shadow-sm ${
+                    hasAvailableSlots ? 'bg-orange-50' : 'bg-gray-100 opacity-70'
+                  }`}
+                >
+                  <div>
+                    <p className="text-gray-800 font-semibold">
+                      {item.doctor.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      ID: {item.doctor.doctorId} | Age:  {item.doctor.age} | Specialist: {item.doctor.specialist}
+                    </p>
+                  </div>
+
+                  {hasAvailableSlots ? (
+                    <button
+                      onClick={() => {
+                        setSelectedDoctor(item);
+                        setSelectedDate('');
+                        setSelectedTime('');
+                      }}
+                      className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                    >
+                      Select
+                    </button>
+                  ) : (
+                    <span className="text-sm text-red-600 font-medium">
+                      No time slots available
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
-        ) : (
+        )}
+
+        {selectedDoctor && (
           <div className="p-4 border rounded bg-blue-50 space-y-2">
             <h4 className="font-semibold">Doctor Details</h4>
             <p><strong>Name:</strong> {selectedDoctor.doctor.name}</p>
@@ -184,6 +278,7 @@ export default function AddAppointment() {
         )}
       </div>
 
+      {/* Match Status */}
       {selectedDoctor && selectedPatient && (
         <div className="mt-4 p-4 rounded bg-yellow-50 text-sm">
           <h4 className="font-semibold mb-1">Match Check:</h4>
@@ -195,23 +290,31 @@ export default function AddAppointment() {
         </div>
       )}
 
+      {/* Select Date/Time */}
       {selectedDoctor && (
         <div className="grid grid-cols-2 gap-4">
-          <select className="border p-2" value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setSelectedTime(''); }}>
+          <select className="border p-2 border-orange-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500" value={selectedDate} onChange={e => { setSelectedDate(e.target.value); setSelectedTime(''); }}>
             <option value="">Select Date</option>
             {selectedDoctor.availableDates.map(d => (<option key={d.dateId} value={d.date}>{d.date}</option>))}
           </select>
-          <select className="border p-2" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} disabled={!selectedDate}>
+          <select className="border p-2 border-orange-600 rounded focus:outline-none focus:ring-2 focus:ring-orange-500" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} disabled={!selectedDate}>
             <option value="">Select Time</option>
             {selectedDoctor.availableDates.find(d => d.date === selectedDate)?.timeSlots.filter(ts => ts.available).map((ts, idx) => (<option key={idx} value={ts.time}>{ts.time}</option>))}
           </select>
         </div>
       )}
 
+      {/* Confirm Add Button */}
       {selectedPatient && selectedDoctor && selectedDate && selectedTime && (
-        <button onClick={handleConfirm} className="mt-4 bg-purple-600 text-white px-6 py-2 rounded">Add Appointment</button>
+        <button
+          onClick={handleConfirm}
+          className="mt-4 px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+        >
+          Add Appointment
+        </button>
       )}
 
+      {/* Confirm Overlay */}
       {showConfirmOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md text-center">
@@ -221,18 +324,34 @@ export default function AddAppointment() {
             <p><strong>Date:</strong> {selectedDate}</p>
             <p><strong>Time:</strong> {selectedTime}</p>
             <div className="mt-4 flex justify-center gap-4">
-              <button onClick={createAppointment} className="bg-green-600 text-white px-4 py-2 rounded">Confirm</button>
-              <button onClick={() => setShowConfirmOverlay(false)} className="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+              <button
+                onClick={createAppointment}
+                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setShowConfirmOverlay(false)}
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Final Success Overlay */}
       {showFinalOverlay && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
             <h3 className="text-lg font-semibold mb-4">Appointment created successfully!</h3>
-            <button onClick={resetForm} className="bg-blue-600 text-white px-4 py-2 rounded">Close</button>
+            <button
+              onClick={resetForm}
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

@@ -4,8 +4,8 @@ import { addDoctorDate } from "../../services/Api";
 export default function UpdateDoctorDateForm() {
   const [searchType, setSearchType] = useState('id');
   const [searchInput, setSearchInput] = useState('');
-  const [doctorResults, setDoctorResults] = useState([]);       
-  const [selected, setSelected] = useState(null);              
+  const [doctorResults, setDoctorResults] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [newDate, setNewDate] = useState('');
   const [timeSlots, setTimeSlots] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -24,7 +24,7 @@ export default function UpdateDoctorDateForm() {
       } else {
         res = await fetch(`http://localhost:8080/api/doctors/search?name=${searchInput.trim()}`);
         if (!res.ok) throw new Error('No doctors found');
-        const list = await res.json(); 
+        const list = await res.json();
         setDoctorResults(list.map(item => ({
           doctor: item.doctor,
           availableDates: item.availableDates
@@ -81,60 +81,63 @@ export default function UpdateDoctorDateForm() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Update Doctor Availability</h2>
+      <h2 className="text-xl font-semibold text-gray-800">Update Doctor Availability</h2>
 
-     
+      {/* Search Bar */}
       <div className="flex gap-2 items-center">
         <select
           value={searchType}
           onChange={e => setSearchType(e.target.value)}
-          className="border p-2"
+          className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
         >
-          <option value="id">By ID</option>
-          <option value="name">By Name</option>
+          <option value="id">Search by ID</option>
+          <option value="name">Search by Name</option>
         </select>
         <input
           type="text"
           placeholder={`Enter Doctor ${searchType === 'id' ? 'ID' : 'Name'}`}
-          className="border p-2 flex-1"
+          className="border border-gray-300 px-3 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
         />
         <button
           onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         >
           Search
         </button>
       </div>
 
-     
-      {!selected && doctorResults.length > 0 && (
-        <ul className="space-y-2">
-          {doctorResults.map((item, idx) => (
-            <li
-              key={idx}
-              className="flex justify-between items-center border p-3 rounded"
-            >
-              <div>
-                <p><strong>{item.doctor.name}</strong> (ID: {item.doctor.doctorId})</p>
-                <p className="text-sm text-gray-600">{item.doctor.specialist}</p>
-              </div>
-              <button
-                onClick={() => setSelected(item)}
-                className="bg-green-600 text-white px-3 py-1 rounded"
+      {/* Search Results */}
+        {!selected && doctorResults.length > 0 && (
+          <ul className="space-y-4 w-full h-[350px] overflow-y-auto mt-4 pr-2">
+            {doctorResults.map((item, idx) => (
+              <li
+                key={idx}
+                className="flex justify-between items-center bg-gray-50 border border-gray-300 shadow-sm rounded-xl px-6 py-4"
               >
-                Select
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+                <div>
+                  <p className="font-semibold text-lg text-gray-800">{item.doctor.name}</p>
+                  <p className="text-sm text-gray-600">
+                    ID: {item.doctor.doctorId} | Age:  {item.doctor.age} | Specialist: {item.doctor.specialist}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelected(item)}
+                  className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                >
+                  Select
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
-     
+
+      {/* Form */}
       {selected && (
         <form onSubmit={handleDateUpdate} className="space-y-4 border p-4 rounded bg-gray-50">
-          <div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <p><strong>Name:</strong> {selected.doctor.name}</p>
             <p><strong>ID:</strong> {selected.doctor.doctorId}</p>
             <p><strong>Specialist:</strong> {selected.doctor.specialist}</p>
@@ -142,20 +145,20 @@ export default function UpdateDoctorDateForm() {
 
           <input
             type="date"
-            className="border p-2 w-full"
+            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={newDate}
             onChange={e => setNewDate(e.target.value)}
             required
           />
 
           <div className="space-y-2">
-            <h3 className="font-medium">Time Slots</h3>
+            <h3 className="font-medium text-gray-700">Time Slots</h3>
             {timeSlots.map((slot, i) => (
-              <div key={i} className="flex gap-2 items-center">
+              <div key={i} className="grid grid-cols-3 gap-2 items-center">
                 <select
                   value={slot.time}
                   onChange={e => handleTimeChange(i, 'time', e.target.value)}
-                  className="border p-2 flex-1"
+                  className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 >
                   <option value="">Select Time</option>
@@ -164,7 +167,7 @@ export default function UpdateDoctorDateForm() {
                 <select
                   value={slot.available ? 'yes' : 'no'}
                   onChange={e => handleTimeChange(i, 'available', e.target.value === 'yes')}
-                  className="border p-2"
+                  className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="yes">Available</option>
                   <option value="no">Not Available</option>
@@ -172,37 +175,39 @@ export default function UpdateDoctorDateForm() {
                 <button
                   type="button"
                   onClick={() => handleRemoveTime(i)}
-                  className="text-red-600 font-bold"
+                  className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
                 >
-                  ✕
+                  Cancel
                 </button>
               </div>
             ))}
             <button
               type="button"
               onClick={handleAddTimeSlot}
-              className="bg-gray-300 px-3 py-1 rounded"
+              className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
             >
               + Add Time
             </button>
           </div>
 
-          <div>
-            <button className="bg-yellow-500 text-white px-4 py-2 rounded">
-              Update Availability
+          <div className="col-span-2 flex justify-start">
+            <button
+              className="px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+            >
+              Submit Update
             </button>
           </div>
         </form>
       )}
 
-      
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-white/30 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
-            <p className="mb-4">{modalMessage}</p>
+            <p className="mb-4 text-gray-800">{modalMessage}</p>
             <button
               onClick={() => setShowModal(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
               Close
             </button>

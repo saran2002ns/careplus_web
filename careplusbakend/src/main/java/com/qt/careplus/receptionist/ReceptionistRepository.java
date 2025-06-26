@@ -10,5 +10,6 @@ public interface ReceptionistRepository extends JpaRepository<Receptionist, Inte
 
     Receptionist findByNumber(String identifier);
     List<Receptionist> findByNameContainingIgnoreCase(String name);
+    boolean existsByNumber(String number);
 
 }

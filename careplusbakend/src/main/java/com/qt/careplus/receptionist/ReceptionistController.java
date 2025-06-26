@@ -68,16 +68,27 @@ public class ReceptionistController {
 
 
     @PostMapping
-    public ResponseEntity<String> createReceptionist(@RequestBody Receptionist receptionist) {
-        try {
-            receptionistRepository.save(receptionist);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Receptionist added successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to add receptionist: " + e.getMessage());
+public ResponseEntity<String> createReceptionist(@RequestBody Receptionist receptionist) {
+    try {
+       
+        if (receptionistRepository.existsByNumber(receptionist.getNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Receptionist with this number already exists.");
         }
+
+        receptionistRepository.save(receptionist);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Receptionist added successfully.");
+    } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to add receptionist: " + e.getMessage());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Something went wrong on the server.");
     }
+}
+
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateReceptionist(@PathVariable Integer id, @RequestBody Receptionist updated) {

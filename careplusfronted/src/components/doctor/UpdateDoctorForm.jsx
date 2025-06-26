@@ -106,15 +106,13 @@ export default function UpdateDoctorForm() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Update Doctor</h2>
-
       {!selectedDoctor ? (
         <>
           <div className="flex gap-2">
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
-              className="border p-2"
+              className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="id">Search by ID</option>
               <option value="name">Search by Name</option>
@@ -122,77 +120,94 @@ export default function UpdateDoctorForm() {
             <input
               type="text"
               placeholder={`Enter ${searchType === 'id' ? 'ID' : 'Name'}`}
-              className="border p-2"
+              className="border border-gray-300 px-3 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button onClick={handleSearch} className="bg-blue-600 text-white px-4 py-2 rounded">
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            >
               Search
             </button>
           </div>
 
           {status && <p className="text-red-600">{status}</p>}
 
-          {doctorResults.length > 0 && (
-            <ul className="space-y-2 max-h-40 overflow-auto">
-              {doctorResults.map(doc => (
-                <li key={doc.doctorId} className="flex justify-between items-center border p-2 rounded">
-                  <span>{doc.name} (ID: {doc.doctorId}, {doc.specialist})</span>
-                  <button
-                    className="bg-green-600 text-white px-3 py-1 rounded"
-                    onClick={() => handleDoctorSelect(doc)}
-                  >
-                    Select
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+        {doctorResults.length > 0 && (
+          <ul className="space-y-4 w-full h-[350px] overflow-y-auto mt-4 pr-2">
+            {doctorResults.map(doc => (
+              <li
+                key={doc.doctorId}
+                className="flex justify-between items-center bg-gray-50 border border-gray-300 shadow-sm rounded-xl px-6 py-4"
+              >
+                <div>
+                  <p className="font-semibold text-lg text-gray-800">{doc.name}</p>
+                  <p className="text-sm text-gray-600">
+                    ID: {doc.doctorId} | Specialist: {doc.specialist}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDoctorSelect(doc)}
+                  className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                >
+                  Select
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
         </>
       ) : (
         <form onSubmit={handleUpdate} className="grid grid-cols-2 gap-4">
-          <div className="col-span-2 font-medium">
+          <div className="col-span-2 font-medium text-gray-700">
             Updating: <strong>{selectedDoctor.name}</strong>
           </div>
+
           <input
             type="text"
             name="name"
             placeholder="Name"
-            className="border p-2"
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={updatedDoctor.name}
             onChange={handleInputChange}
             required
           />
+
           <input
             type="number"
             name="age"
             placeholder="Age"
-            className="border p-2"
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={updatedDoctor.age}
             onChange={handleInputChange}
             required
           />
+
           <input
             type="text"
             name="gender"
             placeholder="Gender"
-            className="border p-2"
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={updatedDoctor.gender}
             onChange={handleInputChange}
             required
           />
+
           <input
             type="text"
             name="number"
             placeholder="Phone Number"
-            className="border p-2"
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={updatedDoctor.number}
             onChange={handleInputChange}
             required
           />
+
           <select
             name="specialist"
-            className="border p-2"
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={updatedDoctor.specialist}
             onChange={handleSpecialistChange}
             required
@@ -202,15 +217,11 @@ export default function UpdateDoctorForm() {
               <option key={idx} value={s}>{s}</option>
             ))}
           </select>
-          <input
-            type="number"
-            name="specialistId"
-            className="border p-2 bg-gray-100"
-            value={updatedDoctor.specialistId}
-            readOnly
-          />
-          <div className="col-span-2">
-            <button className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded">
+
+          <div className="col-span-2 flex justify-center">
+            <button
+              className="px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
+            >
               Submit Update
             </button>
           </div>
@@ -220,10 +231,10 @@ export default function UpdateDoctorForm() {
       {showOverlay && (
         <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
-            <h3 className="text-lg font-semibold mb-4">{status}</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">{status}</h3>
             <button
               onClick={handleCloseOverlay}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
               Close
             </button>

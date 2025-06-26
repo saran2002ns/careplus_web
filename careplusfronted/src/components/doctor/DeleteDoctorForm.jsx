@@ -15,14 +15,12 @@ export default function DeleteDoctorForm() {
         response = await fetch(`http://localhost:8080/api/doctors/${searchInput.trim()}`);
         if (!response.ok) throw new Error("Doctor not found");
         const doctor = await response.json();
-        setResults([
-          {
-            doctorId: doctor.doctorDTO.doctorId,
-            name: doctor.doctorDTO.name,
-            specialist: doctor.doctorDTO.specialist,
-            availableDates: doctor.dates || [],
-          },
-        ]);
+        setResults([{
+          doctorId: doctor.doctorDTO.doctorId,
+          name: doctor.doctorDTO.name,
+          specialist: doctor.doctorDTO.specialist,
+          availableDates: doctor.dates || [],
+        }]);
       } else {
         response = await fetch(`http://localhost:8080/api/doctors/search?name=${searchInput.trim()}`);
         if (!response.ok) throw new Error("Doctors not found");
@@ -35,7 +33,6 @@ export default function DeleteDoctorForm() {
         }));
         setResults(formatted);
       }
-
       setSelectedDoctor(null);
       setStatus('');
     } catch (error) {
@@ -54,14 +51,14 @@ export default function DeleteDoctorForm() {
       const result = await response.text();
 
       if (response.ok) {
-        setStatus(`Doctor ${selectedDoctor.name} (ID: ${selectedDoctor.doctorId}) deleted successfully!`);
+        setStatus(`✅ Doctor ${selectedDoctor.name} (ID: ${selectedDoctor.doctorId}) deleted successfully!`);
         setResults(prev => prev.filter(doc => doc.doctorId !== selectedDoctor.doctorId));
       } else {
-        setStatus(`Failed to delete doctor: ${result}`);
+        setStatus(`❌ Failed to delete doctor: ${result}`);
       }
     } catch (err) {
       console.error("Delete error:", err);
-      setStatus("Error connecting to server.");
+      setStatus("❌ Error connecting to server.");
     }
 
     setShowOverlay(true);
@@ -70,7 +67,7 @@ export default function DeleteDoctorForm() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold mb-4">Delete Doctor</h2>
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">Delete Doctor</h2>
 
       {!selectedDoctor ? (
         <>
@@ -78,7 +75,7 @@ export default function DeleteDoctorForm() {
             <select
               value={searchType}
               onChange={(e) => setSearchType(e.target.value)}
-              className="border p-2"
+              className="border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="id">Search by ID</option>
               <option value="name">Search by Name</option>
@@ -86,43 +83,49 @@ export default function DeleteDoctorForm() {
             <input
               type="text"
               placeholder={`Enter ${searchType === 'id' ? 'ID' : 'Name'}`}
-              className="border p-2"
+              className="border border-gray-300 px-3 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
             <button
               onClick={handleSearch}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
               Search
             </button>
           </div>
 
-          {status && <p className="text-red-600">{status}</p>}
+          {status && <p className="text-red-600 mt-2">{status}</p>}
 
-          {results.length > 0 && (
-            <ul className="space-y-2 max-h-40 overflow-auto">
-              {results.map(doc => (
-                <li
-                  key={doc.doctorId}
-                  className="flex justify-between items-center border p-2 rounded"
-                >
-                  <span>{doc.name} (ID: {doc.doctorId}, {doc.specialist})</span>
-                  <button
-                    onClick={() => setSelectedDoctor(doc)}
-                    className="bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+      {results.length > 0 && (
+        <ul className="space-y-4 w-full h-[350px] overflow-y-auto mt-4 pr-2">
+          {results.map(doc => (
+            <li
+              key={doc.doctorId}
+              className="flex justify-between items-center bg-gray-50 border border-gray-300 shadow-sm rounded-xl px-6 py-4"
+            >
+              <div>
+                <p className="font-semibold text-lg text-gray-800">{doc.name}</p>
+                <p className="text-sm text-gray-600">
+                  ID: {doc.doctorId} | Specialist: {doc.specialist}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedDoctor(doc)}
+                className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
         </>
       ) : (
-        <div className="text-center space-y-4">
-          <p className="text-lg">Are you sure you want to delete this doctor?</p>
-          <div className="text-sm font-medium border p-4 rounded bg-gray-100">
+        <div className="text-center space-y-4 border p-6 rounded bg-gray-50 shadow-sm">
+          <p className="text-lg font-medium text-gray-700">Are you sure you want to delete this doctor?</p>
+          <div className="text-sm font-medium border p-4 rounded bg-white text-gray-700">
             <p><strong>ID:</strong> {selectedDoctor.doctorId}</p>
             <p><strong>Name:</strong> {selectedDoctor.name}</p>
             <p><strong>Specialist:</strong> {selectedDoctor.specialist}</p>
@@ -130,27 +133,27 @@ export default function DeleteDoctorForm() {
           <div className="flex justify-center gap-4">
             <button
               onClick={handleDelete}
-              className="bg-red-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
             >
               Confirm Delete
             </button>
             <button
               onClick={() => setSelectedDoctor(null)}
-              className="bg-gray-300 px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
-              Cancel
+              Close
             </button>
           </div>
         </div>
       )}
 
       {showOverlay && (
-        <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
-            <h3 className="text-lg font-semibold mb-4">{status}</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">{status}</h3>
             <button
               onClick={() => setShowOverlay(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
               Close
             </button>

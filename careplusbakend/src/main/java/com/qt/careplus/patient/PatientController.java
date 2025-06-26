@@ -49,9 +49,16 @@ public class PatientController {
 
     @PostMapping
     public ResponseEntity<String> createPatient(@RequestBody Patient patient) {
+        if (patientRepository.existsByNumber(patient.getNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Patient with this number already exists.");
+        }
         try {
             patientRepository.save(patient);
             return ResponseEntity.status(HttpStatus.CREATED).body("Patient created successfully.");
+         } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Failed to create patient: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Failed to create patient: " + e.getMessage());

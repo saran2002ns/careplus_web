@@ -10,5 +10,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     Optional<Patient> findById(Integer patientId);
     List<Patient> findByNameContainingIgnoreCase(String name);
+    boolean existsByNumber(String number);
 
 }

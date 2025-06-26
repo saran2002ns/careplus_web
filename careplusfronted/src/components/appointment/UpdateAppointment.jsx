@@ -58,20 +58,20 @@ function UpdateAppointment() {
         <input
           type="text"
           placeholder="Enter Appointment ID"
-          className="border p-2"
+          className="border border-orange-500 p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
           value={appointmentId}
           onChange={(e) => setAppointmentId(e.target.value)}
         />
         <button
           onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         >
           Search
         </button>
       </div>
 
       {appointmentData && (
-        <div className="space-y-4 border p-4 rounded">
+        <div className="space-y-4 border border-orange-400 p-4 rounded">
           <h3 className="text-lg font-bold text-center">Appointment Info</h3>
 
           <div className="grid grid-cols-2 gap-4">
@@ -93,14 +93,13 @@ function UpdateAppointment() {
 
           <div className="mt-4">
             <h4 className="font-medium">Change Date and Time</h4>
-
             <select
               value={selectedDate}
               onChange={(e) => {
                 setSelectedDate(e.target.value);
                 setSelectedTime('');
               }}
-              className="border p-2 mt-2 w-full"
+              className="border border-orange-500 p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="">Select Date</option>
               {availableDates.map((d, idx) => (
@@ -112,7 +111,7 @@ function UpdateAppointment() {
               <select
                 value={selectedTime}
                 onChange={(e) => setSelectedTime(e.target.value)}
-                className="border p-2 mt-2 w-full"
+                className="border border-orange-500 p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
               >
                 <option value="">Select Time</option>
                 {availableDates
@@ -128,29 +127,30 @@ function UpdateAppointment() {
 
           <button
             onClick={() => setShowConfirm(true)}
-            className="bg-yellow-500 text-white px-6 py-2 rounded mt-4"
+            className="mt-4 px-4 py-2 rounded border border-yellow-600 text-yellow-700 font-semibold hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
           >
             Update Appointment
           </button>
         </div>
       )}
 
+      {/* Confirm Overlay */}
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96 text-center border border-orange-400">
             <h3 className="text-lg font-semibold mb-4">Confirm Update?</h3>
             <p>New Date: <strong>{selectedDate}</strong></p>
             <p>New Time: <strong>{selectedTime}</strong></p>
             <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={handleUpdate}
-                className="bg-green-600 text-white px-4 py-2 rounded"
+                className="px-4 py-2 rounded border border-green-600 text-green-700 font-semibold hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               >
                 Confirm
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded"
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
               >
                 Cancel
               </button>
@@ -159,13 +159,14 @@ function UpdateAppointment() {
         </div>
       )}
 
+      {/* Success Overlay */}
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96 text-center">
+          <div className="bg-white p-6 rounded shadow-lg w-96 text-center border border-green-500">
             <h3 className="text-lg font-semibold mb-4">Appointment Updated Successfully!</h3>
             <button
               onClick={resetForm}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             >
               Close
             </button>

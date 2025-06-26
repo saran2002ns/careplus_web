@@ -5,6 +5,9 @@ export default function ViewAllAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -22,14 +25,22 @@ export default function ViewAllAppointments() {
     fetchAppointments();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this appointment?')) return;
+  const handleDelete = (appointment) => {
+    setAppointmentToDelete(appointment);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/appointments/${id}`);
-      setAppointments(prev => prev.filter(appt => appt.id !== id));
+      await axios.delete(`http://localhost:8080/api/appointments/${appointmentToDelete.id}`);
+      setAppointments(prev => prev.filter(appt => appt.id !== appointmentToDelete.id));
+      setShowConfirm(false);
+      setAppointmentToDelete(null);
+      setShowSuccess(true);
     } catch (err) {
       console.error('Delete failed:', err);
       alert('Could not delete appointment.');
+      setShowConfirm(false);
     }
   };
 
@@ -49,19 +60,13 @@ export default function ViewAllAppointments() {
       ) : (
         <div className="grid gap-4">
           {appointments.map((appt) => (
-            <div key={appt.id} className="border rounded-lg p-4 shadow bg-white">
+            <div key={appt.id} className="border border-orange-400 rounded-lg p-4 shadow bg-white">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">Appointment #{appt.id}</h3>
                 <div className="space-x-2">
-                  {/* <button
-                    onClick={() => handleUpdate(appt.id)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded"
-                  >
-                    Update
-                  </button> */}
                   <button
-                    onClick={() => handleDelete(appt.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded"
+                    onClick={() => handleDelete(appt)}
+                    className="px-4 py-1 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
                   >
                     Delete
                   </button>
@@ -69,7 +74,6 @@ export default function ViewAllAppointments() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
-               
                 <div>
                   <h4 className="font-medium mb-1">Patient Info</h4>
                   <p><strong>Name:</strong> {appt.patient?.name}</p>
@@ -79,7 +83,6 @@ export default function ViewAllAppointments() {
                   <p><strong>Address:</strong> {appt.patient?.address}</p>
                 </div>
 
-               
                 <div>
                   <h4 className="font-medium mb-1">Doctor Info</h4>
                   <p><strong>Name:</strong> {appt.docter?.doctor?.name}</p>
@@ -96,6 +99,45 @@ export default function ViewAllAppointments() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Overlay */}
+      {showConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96 text-center border border-orange-400">
+            <h3 className="text-lg font-semibold mb-4 text-orange-700">Confirm Delete?</h3>
+            <p>Are you sure you want to delete <strong>Appointment #{appointmentToDelete?.id}</strong>?</p>
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 rounded border border-gray-400 text-gray-700 font-semibold hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Overlay */}
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/40 backdrop-blur-sm z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96 text-center border border-green-500">
+            <h3 className="text-lg font-semibold mb-4 text-green-700">Appointment Deleted Successfully!</h3>
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="px-4 py-2 rounded border border-blue-600 text-blue-700 font-semibold hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -1,61 +1,110 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import AddPatientForm from '../components/Patient/AddPatientForm';
-import UpdatePatientForm from '../components/Patient/UpdatePatientForm';
-import SearchPatientForm from '../components/Patient/SearchPatientForm';
-import DeletePatientForm from '../components/Patient/DeletePatientForm';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import AddPatientForm from "../components/Patient/AddPatientForm";
+import UpdatePatientForm from "../components/Patient/UpdatePatientForm";
+import SearchPatientForm from "../components/Patient/SearchPatientForm";
+import DeletePatientForm from "../components/Patient/DeletePatientForm";
+import {  FaSignOutAlt } from 'react-icons/fa';
 
 export default function ReceptionistDashboard() {
   const [activeTab, setActiveTab] = useState("add");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const receptionistName = "Receptionist Name"; // Replace with actual value
+
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (confirmed) {
-      navigate("/"); 
+    if (window.confirm("Are you sure you want to logout?")) {
+      navigate("/");
     }
   };
 
+  useEffect(() => {
+    setLoading(true);
+    const timeout = setTimeout(() => setLoading(false), 400);
+    return () => clearTimeout(timeout);
+  }, [activeTab]);
+
+  const renderContent = () => {
+    if (loading) return <SkeletonLoader />;
+    switch (activeTab) {
+      case "add":
+        return <AddPatientForm />;
+      case "update":
+        return <UpdatePatientForm />;
+      case "search":
+        return <SearchPatientForm />;
+      case "delete":
+        return <DeletePatientForm />;
+      default:
+        return null;
+    }
+  };
+
+  const tabLabels = {
+    add: "Add Patient",
+    update: "Update Patient",
+    search: "Search Patient",
+    delete: "Delete Patient",
+  };
+
   return (
-    <div className="p-6 max-w-5xl mx-auto relative">
-     
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-center">Receptionist Dashboard</h1>
-        <button 
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-tr from-blue-100 via-white to-green-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Top Bar */}
+        <div className="flex justify-between items-center bg-white rounded-t-2xl shadow px-6 py-4">
+          <h1 className="text-xl font-bold text-green-700">
+            Welcome, {receptionistName}
+          </h1>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded border border-red-600 text-red-700 font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+          >
+            <FaSignOutAlt className="text-lg" />
+            Logout
+          </button>
+        </div>
 
-      
-      <div className="flex justify-center space-x-4 mb-6">
-        <button onClick={() => setActiveTab("add")} className={tabStyle(activeTab === "add")}>
-          Add Patient
-        </button>
-        <button onClick={() => setActiveTab("update")} className={tabStyle(activeTab === "update")}>
-          Update Patient
-        </button>
-        <button onClick={() => setActiveTab("search")} className={tabStyle(activeTab === "search")}>
-          Search Patient
-        </button>
-        <button onClick={() => setActiveTab("delete")} className={tabStyle(activeTab === "delete")}>
-          Delete Patient
-        </button>
-      </div>
+        {/* Tabs + Content */}
+        <div className="bg-white shadow rounded-b-2xl overflow-hidden">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-300">
+            {Object.entries(tabLabels).map(([key, label]) => (
+              <div
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`cursor-pointer w-full text-center py-3 font-medium capitalize transition-all ${
+                  activeTab === key
+                    ? "text-green-700 border-b-4 border-green-600 bg-green-50"
+                    : "text-gray-600 hover:bg-gray-100 border-b-4 border-transparent"
+                }`}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
 
-      
-      <div className="bg-white p-6 rounded shadow">
-        {activeTab === "add" && <AddPatientForm />}
-        {activeTab === "update" && <UpdatePatientForm />}
-        {activeTab === "search" && <SearchPatientForm />}
-        {activeTab === "delete" && <DeletePatientForm />}
+          {/* Content */}
+          <div className="p-6 min-h-[400px]">
+            {/* Optional heading */}
+            {/* <h2 className="text-2xl font-semibold text-green-700 capitalize mb-4">{tabLabels[activeTab]}</h2> */}
+            {renderContent()}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function tabStyle(active) {
-  return `px-4 py-2 rounded ${active ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"}`;
+// Skeleton Loader while switching tabs
+function SkeletonLoader() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-6 w-1/3 bg-gray-300 rounded"></div>
+      <div className="h-4 w-full bg-gray-200 rounded"></div>
+      <div className="h-4 w-full bg-gray-200 rounded"></div>
+      <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+      <div className="h-10 w-1/2 bg-gray-300 rounded mt-4"></div>
+    </div>
+  );
 }
