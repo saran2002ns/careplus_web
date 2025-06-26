@@ -2,8 +2,7 @@ package com.qt.careplus.appointment;
 
 import java.time.LocalDate;
 
-import com.qt.careplus.doctor.Doctor;
-import com.qt.careplus.doctor.DoctorDTO;
+
 import com.qt.careplus.doctor.DoctorWithDatesDTO;
 import com.qt.careplus.patient.Patient;
 
